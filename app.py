@@ -2,8 +2,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash
+from dash.exceptions import PreventUpdate
 import dash_table
 import dash_daq as daq
+import requests
 import sys
 import flask
 
@@ -16,7 +18,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets, server=serv
 app.config.suppress_callback_exceptions = True
 server = app.server
 app.title = 'Clasificador de CLientes CLimo'
-
+TIME_REFRESH = 5000
 
 params = [
     'Lunes', 'Martes', 'Miercoles', 'Jueves',
@@ -43,10 +45,9 @@ app.layout =html.Div([
         	editable=True
     	),
 
-    dcc.Interval(id='interval2', interval=5 * 1000, 
-n_intervals=0),
+    dcc.Interval(id='interval2', interval=3600000, n_intervals=0),
     html.Div([	
-    	dbc.Button("Ejecutar Modelo", color="success", className="mr-1"),
+    	dbc.Button("Ejecutar Modelo", id="boton-ejecutar",color="success", className="mr-1"),
     	], style={'margin-top':'10px' ,'float': 'right', 'display': 'block'}),
     html.H1(id='div-out', children=''),
     html.Iframe(id='console-out',srcDoc='',style={'width': 
@@ -54,21 +55,34 @@ n_intervals=0),
 ])
 
 
-@app.callback(dash.dependencies.Output('console-out', 
-'srcDoc'),
-    [dash.dependencies.Input('interval2', 'n_intervals')])
-def update_output(n):
-    file = open('/var/log/capstone.log', 'r')
-    data=''
-    lines = file.readlines()
-    if lines.__len__()<=10:
-        last_lines=lines
-    else:
-        last_lines = lines[-10:]
-    for line in last_lines:
-        data=data+line + '<BR>'
-    file.close()
-    return data
+
+#al dar click ejecutar el endpoint de Plumber
+# y actualizar el input con lo que tiene el log
+@app.callback(
+	[dash.dependencies.Output('console-out', 'srcDoc'),
+	 dash.dependencies.Output('interval2', 'interval')],
+    [dash.dependencies.Input('boton-ejecutar', 'n_clicks'),
+	 dash.dependencies.Input('interval2', 'n_intervals'),
+	 dash.dependencies.Input('table-editing-simple', 'data')])
+def update_output(n_clicks, n_intervals, df):
+	data = 'Iniciando script en R...'
+	#print(df)
+	
+	if n_clicks:	
+		if n_intervals==0:
+			r = requests.post("http://localhost:8888/clasificar", data=df[0])
+			print('Response is: ' + r.status_code, r.reason)
+		file = open('/var/log/capstone.log', 'r')
+		lines = file.readlines()
+		if lines.__len__()<=10:
+			last_lines=lines
+		else:
+			last_lines = lines[-10:]
+		for line in last_lines:
+			data=data+line + '<BR>'
+		file.close()
+		return [data,TIME_REFRESH]
+	raise PreventUpdate
 
 app.run_server(debug=False, host="0.0.0.0", port=8050)
 
