@@ -8,6 +8,8 @@ import dash_daq as daq
 import requests
 import sys
 import flask
+import json
+
 
 external_stylesheets = ['assets/bWLwgP.css']
 
@@ -21,8 +23,8 @@ app.title = 'Clasificador de CLientes CLimo'
 TIME_REFRESH = 5000
 
 params = [
-    'Lunes', 'Martes', 'Miercoles', 'Jueves',
-    'Viernes', 'Sabado', 'Domingo'
+    'Lun', 'Mar', 'Mie', 'Jue',
+    'Vie', 'Sab', 'Dom'
 ]
 
 app.layout =html.Div([
@@ -40,7 +42,7 @@ app.layout =html.Div([
        		),
         	data=[
             		dict(**{param: 0 for param in params})
-            			for i in range(1, 5)
+            			for i in range(1, 2)
         	],
         	editable=True
     	),
@@ -66,18 +68,16 @@ app.layout =html.Div([
 	 dash.dependencies.Input('table-editing-simple', 'data')])
 def update_output(n_clicks, n_intervals, df):
 	data = 'Iniciando script en R...'
-	#print(df)
-	
 	if n_clicks:	
 		if n_intervals==0:
-			r = requests.post("http://localhost:8888/clasificar", data=df[0])
+			r = requests.post("http://127.0.0.1:8888/clasificar", data=json.dumps(df))
 			print('Response is: ' + str(r.status_code) + ' Reason: ' + r.reason)
 		file = open('/var/log/capstone.log', 'r')
 		lines = file.readlines()
-		if lines.__len__()<=10:
+		if lines.__len__()<=50:
 			last_lines=lines
 		else:
-			last_lines = lines[-10:]
+			last_lines = lines[-50:]
 		for line in last_lines:
 			data=data+line + '<BR>'
 		file.close()
