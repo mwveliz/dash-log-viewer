@@ -20,7 +20,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets, server=serv
 app.config.suppress_callback_exceptions = True
 server = app.server
 app.title = 'Clasificador de CLientes CLimo'
-TIME_REFRESH = 5000
+TIME_REFRESH = 1000
 
 params = [
     'Lun', 'Mar', 'Mie', 'Jue',
@@ -72,15 +72,7 @@ def update_output(n_clicks, n_intervals, df):
 		if n_intervals==0:
 			r = requests.post("http://127.0.0.1:8888/clasificar", data=json.dumps(df))
 			print('Response is: ' + str(r.status_code) + ' Reason: ' + r.reason)
-		file = open('/var/log/capstone.log', 'r')
-		lines = file.readlines()
-		if lines.__len__()<=50:
-			last_lines=lines
-		else:
-			last_lines = lines[-50:]
-		for line in last_lines:
-			data=data+line + '<BR>'
-		file.close()
+		data = open('/tmp/capstone.html', 'r').read()
 		return [data,TIME_REFRESH]
 	raise PreventUpdate
 
