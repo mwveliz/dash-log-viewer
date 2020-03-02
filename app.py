@@ -71,7 +71,7 @@ def update_output(n_clicks, n_intervals, df):
 	if n_clicks:	
 		if n_intervals==0:
 			r = requests.post("http://localhost:8888/clasificar", data=df[0])
-			print('Response is: ' + r.status_code, r.reason)
+			print('Response is: ' + str(r.status_code) + ' Reason: ' + r.reason)
 		file = open('/var/log/capstone.log', 'r')
 		lines = file.readlines()
 		if lines.__len__()<=10:
