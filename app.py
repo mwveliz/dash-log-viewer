@@ -32,7 +32,7 @@ app.layout =html.Div([
 	dbc.Row([
 		html.Img(src=app.get_asset_url('logoclimo.svg'), style={'height':'25%', 'width':'25%'}),
 		dbc.Col(html.H1("Clasificador de clientes Climo"), lg=3),
-		dbc.Col(html.Div("Tabla de consumos"), lg=1),
+		dbc.Col(html.Div("Ingrese consumos de energía del cliente en 15 dias continuos"), lg=1),
 	]),
 	
 	dash_table.DataTable(
