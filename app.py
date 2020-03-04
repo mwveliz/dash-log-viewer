@@ -23,8 +23,9 @@ app.title = 'Clasificador de CLientes CLimo'
 TIME_REFRESH = 1000
 
 params = [
-    'Lun', 'Mar', 'Mie', 'Jue',
-    'Vie', 'Sab', 'Dom'
+    'Dia_1', 'Dia_2', 'Dia_3', 'Dia_4', 'Dia_5',
+	'Dia_6', 'Dia_7', 'Dia_8', 'Dia_9','Dia_10',
+	'Dia_11', 'Dia_12', 'Dia_13', 'Dia_14','Dia_15'
 ]
 
 app.layout =html.Div([
